@@ -1,0 +1,79 @@
+// SPDX-License-Identifier:MIT
+
+pragma solidity ^0.8.13;
+
+import "forge-std/Test.sol";
+import "../src/mynft";
+
+contract NFTTest is Test {
+    NFT nft;
+    address owner = address(1);
+    address user = address(2);
+
+    function setUp() public {
+        nft = new NFT();
+        nft.transferOwnership(owner);
+    }
+
+    function testMint() public {
+        vm.prank(owner);
+        nft.mint(user, "ipfs://example");
+
+        assertEq(nft.balanceOf(user), 1);
+        assertEq(nft.tokenURI(0), "ipfs://example");
+    }
+
+    function testBalanceOf() public {
+        vm.prank(owner);
+        nft.mint(user, "ipfs://example");
+
+        assertEq(nft.mybalanceOf(user), 1);
+    }
+
+    function testOwnerOf() public {
+        vm.prank(owner);
+        nft.mint(user, "ipfs://example");
+
+        assertEq(nft.ownerOf(0), user);
+    }
+
+    function testSafeTransferFrom() public {
+        vm.prank(owner);
+        nft.mint(user, "ipfs://example");
+
+        vm.prank(user);
+        nft.safeTransferFrom(user, owner, 0);
+
+        assertEq(nft.balanceOf(owner), 1);
+    }
+
+    function testTransferFrom() public {
+        vm.prank(owner);
+        nft.mint(user, "ipfs://example");
+
+        vm.prank(user);
+        nft.transferFrom(user, owner, 0);
+
+        assertEq(nft.balanceOf(owner), 1);
+    }
+
+    function testApprove() public {
+        vm.prank(owner);
+        nft.mint(user, "ipfs://example");
+
+        vm.prank(user);
+        nft.approve(owner, 0);
+
+        assertEq(nft.getApproved(0), owner);
+    }
+
+    function testSetApprovalForAll() public {
+        vm.prank(owner);
+        nft.mint(user, "ipfs://example");
+
+        vm.prank(user);
+        nft.setApprovalForAll(owner, true);
+
+        assertTrue(nft.isApprovedForAll(user, owner));
+    }
+}
